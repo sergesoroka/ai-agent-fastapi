@@ -3,12 +3,21 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from api.chat.models import ChatMessagePayload, ChatMessage, ChatMessageListItem
 from api.db import get_session
+from api.chat.ai_service import llm_base
 
 router = APIRouter()
 
 @router.get("/")
 def chat_health():
     return {"status": "ok"}
+
+@router.post("/ask-ai")
+def get_ai_response(
+    payload: ChatMessagePayload,
+):
+    
+    response = llm_base.invoke(payload.message)
+    return response.content
 
 @router.get("/recent/", 
             response_model = List[ChatMessageListItem],

@@ -1,5 +1,7 @@
 FROM python:latest
 
+RUN apt-get update && apt-get install -y curl
+
 # create virtual environment
 RUN python -m venv /opt/venv/
 ENV PATH=/opt/venv/bin:$PATH
