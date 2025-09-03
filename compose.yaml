@@ -10,6 +10,8 @@ services:
       - PORT=8000
     env_file:
       - .env.sample
+    depends_on:
+      - db_service
     volumes:
       - ./backend/src:/app
     develop:
@@ -20,13 +22,29 @@ services:
           path: backend/Dockerfile
         - action: restart
           path: backend/src
-  static_html:
-    build: 
-      context: ./static_html
-      dockerfile: static.Dockerfile
+  # DATABASE_URL=postgresql+psycopg://dbuser:db-password@db_service:5432/mydb
+  db_service:
+    image: postgres:17.5
     ports:
-      - 8888:8888
-    command: python -m http.server 8888
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=db-password
+      - POSTGRES_DB=mydb
+    # env_file:
+    #   - .env.sample-db
     volumes:
-      - ./static_html/src:/app
+      - dc_managed_db_volume:/var/lib/postgresql/data
+  # static_html:
+  #   build: 
+  #     context: ./static_html
+  #     dockerfile: static.Dockerfile
+  #   ports:
+  #     - 8888:8888
+  #   command: python -m http.server 8888
+  #   volumes:
+  #     - ./static_html/src:/app
+
+volumes:
+  dc_managed_db_volume:
     

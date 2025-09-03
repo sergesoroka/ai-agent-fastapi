@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
-from api.chat.models import ChatMessagePayload, ChatMessage
+from api.chat.models import ChatMessagePayload, ChatMessage, ChatMessageListItem
 from api.db import get_session
 
 router = APIRouter()
@@ -9,7 +10,11 @@ router = APIRouter()
 def chat_health():
     return {"status": "ok"}
 
-@router.get("/recent/")
+@router.get("/recent/", 
+            response_model = List[ChatMessageListItem],
+            description = "The most recent prompts users provided",
+            status_code = status.HTTP_200_OK 
+            )
 def chat_list_messages(session: Session = Depends(get_session)):
     query = select(ChatMessage) # sql -> query
     results = session.exec(query).fetchall()[:10]
